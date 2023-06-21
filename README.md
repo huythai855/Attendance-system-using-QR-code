@@ -45,7 +45,7 @@ Với việc triển khai các bước dưới đây, bạn có thể:
   - 2 file mình đều đã để trong repo github này, bạn có thể vào đọc trước xem.
 
 
-- Mình đi tạo Form checkin:
+- Tiếp theo mình đi tạo Form checkin:
   - `Giao diện Form`: đơn giản thôi, chỉ cần 1 câu hỏi duy nhất.
   
     <img src="resources/form.png" width="400px">
@@ -60,7 +60,7 @@ Với việc triển khai các bước dưới đây, bạn có thể:
 
   <img src="resources/checkin-controller.png" width="800px">
 
-- Xong rồi thì quay lại app script sheet rồi chạy để tự động gửi mail đến người tham gia thôi.
+- Xong rồi thì quay lại sheet thông tin rồi chạy phần script đã chuẩn bị để tự động gửi mail đến người tham gia thôi.
 
   <img src="resources/email.png" width="800px">
 
@@ -70,6 +70,8 @@ Với việc triển khai các bước dưới đây, bạn có thể:
 - [Gscript sử dụng](code.js)
 - [Template mail động](template.html)
 - [MJML để viết mail động](https://mjml.io/)
+- [Extension Simple Mass Downloader](https://chrome.google.com/webstore/detail/simple-mass-downloader/abdkkegmcbiomijcbdaodaflgehfffed)
+- [Image Chart API](https://documentation.image-charts.com/qr-codes/)
 
 ## Phần bổ sung
 - Đây là phần nghiên cứu mình hoàn toàn tự mày mò dựa trên sự kiện mình tham gia ở năm ngoái, không tham khảo ở bất cứ nguồn nào. Vì vậy, mình hi vọng nếu các bạn thấy bài viết này có ích & sử dụng ý tưởng này có thể dẫn link tới repo này của mình để nhiều người biết hơn nhé.
