@@ -1,5 +1,7 @@
 # Attendance system using QR code
-Điểm danh người tham gia sự kiện qua QR gửi trong thư mời (qua email) chỉ sử dụng các công cụ đơn giản như Google Sheet & Google Forms.  
+Hệ thống điểm danh người tham gia sự kiện qua QR gửi trong thư mời.
+
+Cập nhật lần cuối 23/09/2023.
 
 ## Giới thiệu
 Với việc triển khai các bước dưới đây, bạn có thể:
@@ -9,14 +11,13 @@ Với việc triển khai các bước dưới đây, bạn có thể:
     - Kiểm soát được danh sách người đã đến tham dự sự kiện theo **thời gian thực**. 
 
 ## Luồng hoạt động
-<img src="resources/workflow.jpg" width="800px">
+<img src="resources/workflow2.jpg" width=match-parent> 
 
 - Về cơ bản, ảnh trên đã mô tả các thành phần và chức năng riêng của chúng trong hệ thống của mình, trông thì có vẻ phức tạp nhưng thực ra đơn giản thôi.
 - Một số trick được áp dụng khi dùng từng công cụ mà kết hợp chúng lại nó thực hiện được công việc mình đang cần:
   - `Google script`: thường mọi người dùng Google Sheets chỉ để làm bảng tính, thay thế Excel thôi, nhưng thực tế thì nó còn có khả năng tự động hóa các công việc rất mạnh nữa. Trong trường hợp này mình sẽ viết code để gửi mail tới cho danh sách người tham gia. 
   - `Google Forms`: Forms thì ai cũng biết, nhưng mình tìm hiểu được thêm việc có thể submit form tự động bằng link kèm params. Tức là QR code của mỗi người thực tế sẽ là một link trỏ đến link điền form với param là login code của người đó, vậy khi mình scan lúc điểm danh (thực chất là truy cập link đó), thì kết quả sẽ được lưu lại là 1 phản hồi cho form đó. Đây cũng là chìa khóa của công cụ này.
-  - `Github`: dùng Github để lưu code thì rõ rồi, nhưng mình lại dùng nó để lưu ảnh cơ. Tại sao? Bởi vì nó có thể lưu & giữ nguyên tên file ảnh, còn khi upload lên Google Drive chẳng hạn, link ảnh của bạn sẽ bị mã hóa bằng hash và không có cấu trúc -> mình không thể tự động detect được link ảnh QR cho từng vé mời. 
-  - <a href="https://chrome.google.com/webstore/detail/simple-mass-downloader/abdkkegmcbiomijcbdaodaflgehfffed">`Simple mass downloader`</a>: cái này thì mình pick bừa 1 extension trên Chrome Store mình cần để download ảnh từ link thôi, không có gì đặc biệt.
+  - `image-charts API`: API để gen ra QR được cá nhân hóa theo từng người. API này mở, không giới hạn lượt dùng, không limit thời gian sử dụng (bạn không lo bị khóa link sau một thời gian).
 
 ## Cách thực hiện
 - Đầu tiên bạn truy cập [sheet này](https://docs.google.com/spreadsheets/d/134WF55HkPuSOizzZRZ8eW9xXsTUWFQwtFiXPMBiw1tI/edit?usp=sharing). Chọn `File` > `Make a copy` cho tiện hoặc bạn cứ đọc để hiểu nguyên lý hoạt động chứ sheet này mình vừa làm vừa nháp, hơi xấu nên khó nhìn.
@@ -29,9 +30,7 @@ Với việc triển khai các bước dưới đây, bạn có thể:
   - `Login code`: như đã giải thích bên trên, cái này là mã đăng nhập của mỗi người, bạn tự tạo theo format nào bạn thích, miễn không trùng nhau là được. Bạn có thể dùng MSSV, CCCD nếu thích.
   - `Link form`: link đến form điểm danh. Các ô trong cột đấy đều có giá trị như nhau, mình kéo xuống để cho tiện thôi.
   - `Form entry point`: nó là entry point của ô câu trả lời khi bạn điền form. Cái này hơi technical 1 xíu, tí giải thích bên dưới. Tương tự cột link form, các ô trong cột này đều có giá trị như nhau, mình kéo xuống để cho tiện thôi.
-  - `Generated QR code`: mình dùng API từ [image-charts.com](image-charts.com) để tạo từ **_link form_** + **_entry point_** + **_login code_**, bạn chỉ cần copy y hệt là được.
-  - `Thứ tự tải xuống`: khi mình tải QR code đã tạo xuống, mình cần phải tải theo đúng thú tự (cái này có extension Simple Mass Downloader lo), và upload lên 1 cơ sở dữ liệu lưu trữ được như github.
-  - `Link ảnh cuối`: là link ảnh mình đã upload lên github, thứ tự tương ứng với từng người chơi và login code. Phải đúng thứ tự, không thì người này sẽ nhận được vé của người khác.
+  - `Generated QR link`: mình dùng API từ [image-charts.com](image-charts.com) để tạo từ **_link form_** + **_entry point_** + **_login code_**, để tạo ra một link QR cho từng người. Bạn chỉ cần copy y hệt là được.
 
 
 - Tiếp theo, mình đi viết [script](https://viblo.asia/p/google-apps-script-co-gi-hay-ho-07LKX2xElV4) cho sheet này. Bạn có thể nhấn vào phần `Extensions` > `App Script`. Mình đã viết sẵn script trong đó, bao gồm 2 file.
@@ -56,12 +55,12 @@ Với việc triển khai các bước dưới đây, bạn có thể:
   
   - Phần form check-in này mọi người nhớ chỉ cấp quyền điền form cho địa chỉ email của Ban tổ chức máy dùng để scan khi người ta đi vào sự kiện. Chứ ai cũng scan & điền form được thì họ tự điểm danh cho nhau rồi.
 
-- Customize sheet phản hồi để kiểm soát người tham gia theo thời gian thực. Cái này ai hiểu sheet cơ bản đều làm được rồi, chỉ bằng những câu lệnh điều kiện đơn giản thôi nên mình cũng không nói dài nữa & chỉ để [mẫu](https://docs.google.com/spreadsheets/d/1WR0jBY9Mn63x19XxeQhmGXuzvN-sr1pXHGQPQASSbfc/edit?usp=sharing) thôi nhé.
+- Customize sheet phản hồi để kiểm soát người tham gia theo thời gian thực (kiểu như là đến thì nó hiện chữ có mặt và nền màu xanh). Cái này múa vài dòng lệnh sheet cơ làm được rồi, nên mình cũng không nói dài nữa & chỉ để [mẫu](https://docs.google.com/spreadsheets/d/1WR0jBY9Mn63x19XxeQhmGXuzvN-sr1pXHGQPQASSbfc/edit?usp=sharing) thôi nhé.
 
   <img src="resources/checkin-controller.png" width="800px">
 
-- Xong rồi thì quay lại sheet thông tin rồi chạy phần script đã chuẩn bị để tự động gửi mail đến người tham gia thôi.
-
+- Xong rồi thì quay lại sheet thông tin rồi chạy phần script đã chuẩn bị để tự động gửi mail đến người tham gia thôi.<br/>⚠️ **PLEASE NOTE**: hãy kiểm tra thật kỹ thông tin, test code cẩn thận trước khi run code, nếu không thì email với thông tin và QR sai được gửi tới người dùng thì không thể cứu vãn được đâu <br/><br/>
+  <img src="resources/run-code.png" width="800px">
   <img src="resources/email.png" width="800px">
 
 ## Các link liên quan
